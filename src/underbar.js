@@ -1,3 +1,5 @@
+
+
 (function() {
   'use strict';
 
@@ -38,7 +40,7 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
-    return n ==== undefined ? array[array.length-1] : array.slice(0, n);
+    return n === undefined ? array[array.length-1] : (n === 0 ? [] : array.slice(-n));
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -91,18 +93,33 @@
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
     return _.filter(collection, function(val) {
-      return test(val) === -1);
-    };
+      return !test(val);
+    });
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
-    return _.filter(array, function(val, i) {
-      //the indexOf value will show the index of the first occurence,
-      //so if the element is a duplicate, the current index and indexOf value
-      //will not be equal
-      return array.indexOf(val) === i;
+    //create object with elements as keys, so that if we come across an element
+    //that already exists as a key, we just move on the the  next element
+    //after we have a object of uniqe values as keys, we map out the keys into 
+    //an array, because map is defined below, I used each and placed map solution in
+    //comments
+    var uniqueElements = {};
+    var uniqueArray = []; //not necessary when using map()
+    _.each(array, function(val){
+        uniqueElements[val] = 0;
+    })
+    _.each(uniqueElements, function(val,key){
+      uniqueArray.push(Number(key));
     });
+    return uniqueArray;
+    /*
+    instead of the each() function and returned value above, a solution wtih map would be:
+    return _.map(uniqueElements, function(val, key) {
+      return Number(key);
+    });
+    */
+   
   };
 
 
@@ -201,7 +218,7 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    return _.reduce(collection, function())
+   
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
