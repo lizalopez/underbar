@@ -177,6 +177,9 @@
   _.reduce = function(collection, iterator, accumulator) {
     //initially attempted to use the each() callback, but a lack of initialValue
     //argument requires the iterator to skip over the first element in the collection
+    //realized previosu solution was only funcitoning correclty for arrays
+    //Object.keys() works on both arrays and objects
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
     var counter;
     var memo;
     //several ways of testing for accumulator input, including:
@@ -185,17 +188,17 @@
     //memo = accumulator || collection[0]
     //memo = arguments[2] || collection[0] 
     //I chose this method to specifically test for accumulator (in case a user entered another 
-    //arrangment of arguments that were invalid) and to set counter to 1 if accumulator was undefined
-    if (accumulator === undefined) {
+    //arrangment of arguments that were invalid) and to set counter to 1 if accumulator was undefined or null
+    if (accumulator === undefined || accumulator === null) {
       counter = 1;   
-      memo = collection[0];
+      memo = collection[Object.keys(collection)[0]];
     } else {
       counter = 0;
       memo = accumulator;
     }
     // = arguments[2] || collection[0];
-    while (counter < collection.length) {
-      memo = iterator(memo, collection[counter]);
+    while (counter < Object.keys(collection).length) {
+      memo = iterator(memo, collection[Object.keys(collection)[counter]]);
       counter ++;
     }
     return memo;
