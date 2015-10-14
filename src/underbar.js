@@ -276,12 +276,31 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    
+    //The arguments object is not an Array. It is similar to an Array, 
+    //but does not have any Array properties except length.  
+    //However it can be converted to a real Array:
+    //var args = Array.prototype.slice.call(arguments);
+    var propertiesArr = Array.prototype.slice.call(arguments, 1);
+    _.each(propertiesArr, function(properties) {
+      _.each(properties, function(value,key) {
+        obj[key] = properties[key];
+      })
+    })
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var propertiesArr = Array.prototype.slice.call(arguments, 1);
+    _.each(propertiesArr, function(properties) {
+      _.each(properties, function(value, key) {
+        if (!(key.toString() in obj)) {
+          obj[key] = properties[key];
+        }
+      })
+    })
+    return obj;
   };
 
 
@@ -325,8 +344,23 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
+    //attempted to use each() to search for the argument values in an object of
+    //past arguments (which I built using extend() , and realized
+    //contain could be re-used for this purpose
+    //wether the function has been previously called is irrelevant, since the test
+    //depends on the arguments used
+    var argumentLog = {};
+    var result;
 
+    return function() {
+      if (!_.contains(argumentLog, arguments)) {
+        result = func.apply(this, arguments);
+        _.extend(argumentLog, arguments);
+      }
+        return result;
+    }     
+  };
+  
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
@@ -334,6 +368,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var propertiesArr = Array.prototype.slice.call(arguments, 2);
+    //call all arguments
+      setTimeout(function() {
+        return func.apply(this, propertiesArr)
+      }, wait);
   };
 
 
@@ -348,7 +387,30 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+  //Fisher-Yates (aka Knuth) Shuffle
+    var shuffledArr = array.slice(0);
+
+    for (var i = shuffledArr.length-1; i>=0; i--) {
+      //use Math.floor to round down, and Math.random() * i, to get numbers 0 through i(not inclusive)
+      //store the value of the random indiex in randomIndex
+      var randomIndex = Math.floor(Math.random() * i);
+      //copy the value currently in the randomly chosen index into itemAtIndex
+      var itemAtIndex = shuffledArr[randomIndex];
+      //swap the value at the randomly chosen index with the one at current index i
+      shuffledArr[randomIndex] = shuffledArr[i];
+      //at the moment, the value at current index (shuffledArr[i]) is in both the current
+      //index, and in the random index, but we have a copy of the value originally
+      //in the random index stored inside itemAtIndex, so we swap the current
+      //index's value with itemAtIndex's, which completed the swap between the current
+      //eleement and the randomly selected element, and we move on to the next iteration,
+      //working our way closer to the beginning of the array until shuffling is complete
+      shuffledArr[i] = itemAtIndex;
+    }
+    return shuffledArr;
   };
+
+
+
 
 
   /**
@@ -384,6 +446,25 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+ /*
+    var flattened = []:
+    var array= nestedArr.slice(0);
+    var i = 0;
+    var flattener = function(array) {
+    var current = array[i];
+    while (i < array.length) {
+    if (!Array.isArray(current)) {
+      flattened.push(current);
+      array = array.slice(i+1);
+      return flattener(array);
+    } else {
+      current = flattener(current);
+    }
+    }
+      return flattened;
+    }
+    flattener(array);
+  return flattened;*/
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
