@@ -344,21 +344,22 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    //attempted to use each() to search for the argument values in an object of
-    //past arguments (which I built using extend() , and realized
-    //contain could be re-used for this purpose
-    //wether the function has been previously called is irrelevant, since the test
-    //depends on the arguments used
-    var argumentLog = {};
-    var result;
-
+    //was attempting to create the memo object in which to store arguments passed 
+    // but instead am adding a ['memo'] property to the function being passed, since
+    //that information will retain passed new function invocations with different inputs
+    //then, upon calling a duplicate, the code will check the function's memo for the 
+    //arguments array, and if its found, it will return the values stored in the property
+    //from previous invocations. If it's not found, the result of the invocation will be stored
+    //under that current property in memo
     return function() {
-      if (!_.contains(argumentLog, arguments)) {
-        result = func.apply(this, arguments);
-        _.extend(argumentLog, arguments);
+      var argArray = Array.prototype.slice.call(arguments);
+      //if the function does not have an existing memo obj, create one; otherwise, don nothing;
+      func.memo = (func.memo || {});
+      if (!(argArray in func.memo)) {
+        func.memo[argArray] = func.apply(this, argArray);
       }
-        return result;
-    }     
+      return func.memo[argArray];
+    };
   };
   
   // Delays a function for the given number of milliseconds, and then calls
